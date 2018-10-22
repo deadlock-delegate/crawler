@@ -1,6 +1,26 @@
 {
+  "name": "crawler",
+  "version": "0.0.1",
+  "description": "loops through the ARK network to get the height of connected peers",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roks0n/crawler.git"
+  },
+  "engines": {
+    "node": "^8.11.2"
+  },
+  "keywords": [],
+  "author": "A(rk)-Team",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/roks0n/crawler#readme",
+  "devDependencies": {},
   "dependencies": {
     "axios": "^0.18.0",
     "delay": "^4.0.1",
+    "lodash": "^4.17.11"
   }
 }

@@ -1,7 +1,8 @@
 # Crawler
 
-Network scanning tool for Ark (v2)
+Network scanning tool for ARK.
 
+This currently works for ARK v1 and will be updated to work with V2's API structure shortly. 
 
 ## Installation
 
@@ -9,4 +10,4 @@ Network scanning tool for Ark (v2)
 
 ## Usage
 
-`node app.js http://<ip>:<port>`
+`npm start http://<ip>:<port>`
