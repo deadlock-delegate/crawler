@@ -6,7 +6,7 @@ class Crawler {
    * Initializes the internal request reactor.
    * @method constructor
    */
-  constructor (timeout = 5000) {
+  constructor (timeout = 3000) {
     this._counter = 0
     this._queue = []
     this.timeout = timeout
@@ -196,7 +196,10 @@ class Crawler {
     if (response.status === 200 && response.data && response.data.height) {
       this.heights.push({
         height: response.data.height,
-        id: response.data.id
+        id: response.data.id,
+        version: node.version,
+        os: node.os,
+        delay: node.delay
       })
       return Promise.resolve()
     } else {

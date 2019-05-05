@@ -1,11 +1,13 @@
 const Crawler = require('./src/crawler')
 const { URL } = require('url')
+const { orderBy } = require('lodash/collection')
 
 const crawler = new Crawler()
 const args = process.argv.slice(2)
 
 const report = (crawler) => {
   const blockStats = {}
+  const versionStats = {}
 
   for (const item of crawler.heights) {
     if (blockStats[item.height]) {
@@ -17,19 +19,50 @@ const report = (crawler) => {
       blockStats[item.height].ids = {}
       blockStats[item.height].ids[item.id] = 1
     }
+
+    if (versionStats[item.version]) {
+      versionStats[item.version].count += 1
+    } else {
+      versionStats[item.version] = {
+        count: 1,
+        version: item.version
+      }
+    }
   }
+
+  const allDelays = crawler.heights.filter(item => item.delay).map(item => item.delay)
+  const averageDelay = allDelays.reduce((a, b) => a + b, 0) / allDelays.length
+  const maxDelay = Math.max(...allDelays)
+  const minDelay = Math.min(...allDelays)
 
   console.log(`===========================================`)
   console.log(`Total nodes visited: ${Object.keys(crawler.nodes).length}`)
   console.log(`Total nodes online: ${crawler.heights.length}`)
   console.log(`------------------------------------------`)
-  console.log(`Block stats:`)
+
+  // height/block stats
+  console.log(`Height and block stats:`)
   for (const stat in blockStats) {
-    console.log(`${blockStats[stat].count} nodes on height ${stat} with hashes:`)
+    console.log(`  ${blockStats[stat].count} nodes on height ${stat} with hashes:`)
     for (const hash in blockStats[stat].ids) {
-      console.log(`  - ${hash} (${blockStats[stat].ids[hash]} nodes)`)
+      console.log(`    - ${hash} (${blockStats[stat].ids[hash]} nodes)`)
     }
   }
+
+  // version stats
+  console.log(``)
+  console.log(`Version stats:`)
+  for (const stat of orderBy(Object.values(versionStats))) {
+    console.log(`  - ${stat.count} nodes on version ${stat.version}`)
+  }
+
+  // delay stats
+  console.log(``)
+  console.log(`Delay`)
+  console.log(`  Average delay: ${averageDelay}`)
+  console.log(`  Min delay: ${minDelay}`)
+  console.log(`  Max delay: ${maxDelay}`)
+
   console.log(`------------------------------------------`)
   console.log(`Finished scanning in ${new Date() - crawler.startTime}ms`)
 
