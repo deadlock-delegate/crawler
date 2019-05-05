@@ -1,0 +1,33 @@
+{
+  "name": "Crawler",
+  "version": "1.0.0",
+  "description": "Crawler scans the ARK network to get information about the peers in the network.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "lint": "eslint ./ --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deadlock-delegate/crawler.git"
+  },
+  "engines": {
+    "node": "^8.11.2"
+  },
+  "keywords": [],
+  "author": "A(rk)-Team",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/deadlock-delegate/crawler#readme",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "lodash": "^4.17.11"
+  }
+}
