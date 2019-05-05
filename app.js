@@ -16,6 +16,7 @@ const report = (crawler) => {
     } else {
       blockStats[item.height] = {}
       blockStats[item.height].count = 1
+      blockStats[item.height].height = item.height
       blockStats[item.height].ids = {}
       blockStats[item.height].ids[item.id] = 1
     }
@@ -42,17 +43,17 @@ const report = (crawler) => {
 
   // height/block stats
   console.log(`Height and block stats:`)
-  for (const stat in blockStats) {
-    console.log(`  ${blockStats[stat].count} nodes on height ${stat} with hashes:`)
-    for (const hash in blockStats[stat].ids) {
-      console.log(`    - ${hash} (${blockStats[stat].ids[hash]} nodes)`)
+  for (const stat of orderBy(Object.values(blockStats), ['height'], ['desc'])) {
+    console.log(`  ${stat.count} nodes on height ${stat.height} with hashes:`)
+    for (const hash in stat.ids) {
+      console.log(`    - ${hash} (${stat.ids[hash]} nodes)`)
     }
   }
 
   // version stats
   console.log(``)
   console.log(`Version stats:`)
-  for (const stat of orderBy(Object.values(versionStats))) {
+  for (const stat of orderBy(Object.values(versionStats), ['version'], ['desc'])) {
     console.log(`  - ${stat.count} nodes on version ${stat.version}`)
   }
 
