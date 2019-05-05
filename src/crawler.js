@@ -1,6 +1,5 @@
 const axios = require('axios')
-const delay = require('delay')
-const { map, values } = require('lodash')
+const { map } = require('lodash')
 
 class Crawler {
   /**
@@ -11,6 +10,7 @@ class Crawler {
     this._counter = 0
     this._queue = []
     this.timeout = timeout
+    this.headers = {}
     setTimeout(() => { this.start() }, 100)
   }
 
@@ -26,11 +26,16 @@ class Crawler {
     this.nodes = {}
     this.startTime = new Date()
 
-    await this.fetchNetwork(node)
-    await this.scanNodes()
-    console.log('done')
+    try {
+      await this.setNetworkConfig(node)
+      await this.fetchPeers(node)
+      await this.fetchHeights()
+      console.log('. done')
+    } catch (err) {
+      console.error(err)
+    }
 
-    return this;
+    return this
   }
 
   /**
@@ -60,13 +65,26 @@ class Crawler {
     }
   }
 
+  async setNetworkConfig (node) {
+    const response = await axios.get(
+      `http://${node.ip}:${node.port}/config`,
+      { timeout: this.timeout }
+    )
+    this.headers = {
+      nethash: response.data.data.network.nethash,
+      version: response.data.data.network.version,
+      'API-Version': 2,
+      port: 4001
+    }
+  }
+
   /**
    * Walks the peer list starting with `node`
-   * @method fetchNetwork
+   * @method fetchPeers
    * @param  {object}     node {ip: [address], port: [4001]}
    * @return {Promise}
    */
-  fetchNetwork (node) {
+  fetchPeers (node) {
     return new Promise((resolve) => {
       if (node.ip === '127.0.0.1') {
         // Ignore localhost
@@ -75,7 +93,10 @@ class Crawler {
         this.nodes[node.ip] = 'queued'
         this.queue(() => {
           axios
-            .get(`http://${node.ip}:${node.port}/api/peers`, {timeout: this.timeout})
+            .get(`http://${node.ip}:${node.port}/peer/list`, {
+              timeout: this.timeout,
+              headers: this.headers
+            })
             .then((response) => { this.peerResponseSuccess(node, response).then(resolve) })
             .catch((err) => { this.peerResponseError(node, err).then(resolve) })
         })
@@ -91,10 +112,8 @@ class Crawler {
    * @return {Promise}
    */
   async peerResponseError (node, err) {
-    if (!this.nodes[node.ip]) {
-      this.nodes[node.ip] = 'error'
-      console.error(`There was a problem getting peer list from http://${node.ip}:${node.port}`)
-    }
+    this.nodes[node.ip] = 'error'
+    console.error(`\nThere was a problem getting peer list from http://${node.ip}:${node.port}`)
     return true
   }
 
@@ -113,22 +132,22 @@ class Crawler {
         if (this.nodes[newPeer.ip]) {
           return Promise.resolve()
         } else {
-          return this.fetchNetwork(newPeer)
+          return this.fetchPeers(newPeer)
         }
       })
 
       return Promise.all(promises)
     } else {
-      return this.peerResponseError(node, response)
+      return this.peerResponseError(peer, response)
     }
   }
 
   /**
    * Scans all available peer nodes for current height
-   * @method scanNodes
+   * @method fetchHeights
    * @return {Promise}
    */
-  scanNodes () {
+  fetchHeights () {
     const promises = map(this.nodes, (peer, ip) => {
       if (peer === 'error') {
         return Promise.resolve()
@@ -139,7 +158,10 @@ class Crawler {
         return new Promise((resolve) => {
           this.queue(() => {
             axios
-              .get(`http://${peer.ip}:${peer.port}/api/blocks/getHeight`, {timeout: this.timeout})
+              .get(`http://${peer.ip}:${peer.port}/peer/height`, {
+                timeout: this.timeout,
+                headers: this.headers
+              })
               .then((response) => { this.heightResponseSuccess(peer, response).then(resolve) })
               .catch((err) => { this.heightResponseError(peer, err).then(resolve) })
           })
@@ -158,7 +180,7 @@ class Crawler {
    * @return {Promise}
    */
   async heightResponseError (node, err) {
-    console.error(`There was a problem getting the current height of http://${node.ip}:${node.port}`)
+    console.error(`\nThere was a problem getting the current height of http://${node.ip}:${node.port}`)
     console.error(err)
     return true
   }
@@ -183,4 +205,4 @@ class Crawler {
   }
 }
 
-module.exports = Crawler;
+module.exports = Crawler

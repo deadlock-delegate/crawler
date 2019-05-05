@@ -1,8 +1,6 @@
 # Crawler
 
-Network scanning tool for ARK.
-
-This currently works for ARK v1 and will be updated to work with V2's API structure shortly. 
+Crawler scans the ARK network to get information about the peers in the network.
 
 ## Installation
 
@@ -11,3 +9,15 @@ This currently works for ARK v1 and will be updated to work with V2's API struct
 ## Usage
 
 `npm start http://<ip>:<port>`
+
+For port use the p2p port, which is 4001 for Ark's mainnet.
+
+## Credits
+
+- [roks0n](https://github.com/roks0n)
+- [dmvt](https://github.com/dmvt)
+- [All Contributors](../../../../contributors)
+
+## License
+
+[MIT](LICENSE) © roks0n
