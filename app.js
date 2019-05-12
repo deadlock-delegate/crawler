@@ -9,7 +9,9 @@ const report = (crawler) => {
   const blockStats = {}
   const versionStats = {}
 
-  for (const item of crawler.heights) {
+  const nodes = Object.values(crawler.nodes)
+
+  for (const item of nodes) {
     if (blockStats[item.height]) {
       blockStats[item.height].count += 1
       blockStats[item.height].ids[item.id] += 1
@@ -17,6 +19,7 @@ const report = (crawler) => {
       blockStats[item.height] = {}
       blockStats[item.height].count = 1
       blockStats[item.height].height = item.height
+      // todo block ids
       blockStats[item.height].ids = {}
       blockStats[item.height].ids[item.id] = 1
     }
@@ -31,7 +34,7 @@ const report = (crawler) => {
     }
   }
 
-  const allDelays = crawler.heights.filter(item => item.delay).map(item => item.delay)
+  const allDelays = nodes.filter(item => item.latency).map(item => item.latency)
   const averageDelay = allDelays.reduce((a, b) => a + b, 0) / allDelays.length
   const maxDelay = Math.max(...allDelays)
   const minDelay = Math.min(...allDelays)
@@ -78,4 +81,4 @@ if (args.length === 1) {
   node.port = url.port
 }
 
-crawler.run(node).then(report)
+crawler.run(node).then(report).catch(err => console.error(err))

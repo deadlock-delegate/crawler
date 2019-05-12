@@ -1,6 +1,6 @@
 {
   "name": "Crawler",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Crawler scans the ARK network to get information about the peers in the network.",
   "main": "app.js",
   "scripts": {
@@ -14,9 +14,14 @@
   "engines": {
     "node": "^8.11.2"
   },
-  "keywords": [],
-  "author": "A(rk)-Team",
-  "license": "Apache-2.0",
+  "keywords": [
+    "ark acosystem",
+    "network",
+    "scanner",
+    "blockchain"
+  ],
+  "author": "roks0n",
+  "license": "MIT",
   "homepage": "https://github.com/deadlock-delegate/crawler#readme",
   "devDependencies": {
     "eslint": "^5.16.0",
@@ -27,7 +32,7 @@
     "eslint-plugin-standard": "^4.0.0"
   },
   "dependencies": {
-    "axios": "^0.18.0",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "socketcluster-client": "^14.2.2"
   }
 }
