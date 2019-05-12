@@ -2,6 +2,10 @@
 
 Crawler scans the ARK network to get information about the peers in the network.
 
+**Branches**
+- master: is for Ark v2.4 node which **uses websockets** for p2p instead of api
+- v2.3: is for any Ark node that's lower than v2.4 which **doesn not use websockets** yet
+
 ## Installation
 
 `npm install`
