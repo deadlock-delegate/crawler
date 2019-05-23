@@ -76,7 +76,7 @@ class Crawler {
             }
 
             if (!this.peers.get(peer.ip)) {
-              this.peers.add(peer.ip, peer.port)
+              this.peers.add(peer.ip, peer.ports.p2p)
             }
           })
 
@@ -120,11 +120,11 @@ class Crawler {
               return reject(new Error(err))
             }
             this.heights.push({
-              height: response.data.header.height,
-              id: response.data.header.id
+              height: response.data.state.header.height,
+              id: response.data.state.header.id
             })
-            this.nodes[peer.ip].height = response.data.header.height
-            this.nodes[peer.ip].id = response.data.header.id
+            this.nodes[peer.ip].height = response.data.state.header.height
+            this.nodes[peer.ip].id = response.data.state.header.id
             return resolve()
           }
         )
