@@ -3,6 +3,7 @@ const Peers = require('./peer')
 
 const VISITED = 1
 const NOT_VISITED = 0
+let NETWORK_P2P_PORT = null
 
 class Crawler {
   /**
@@ -16,8 +17,7 @@ class Crawler {
     this.request = {
       headers: {
         nethash: 'no-nethash',
-        version: 'no-version',
-        port: 1337
+        version: 'no-version'
       }
     }
   }
@@ -35,7 +35,9 @@ class Crawler {
     this.startTime = new Date()
     this.peers = new Peers()
 
-    this.peers.add(peer.ip, peer.port)
+    NETWORK_P2P_PORT = peer.port
+
+    this.peers.add(peer.ip, NETWORK_P2P_PORT)
 
     try {
       console.log(`... discovering network peers`)
@@ -76,7 +78,7 @@ class Crawler {
             }
 
             if (!this.peers.get(peer.ip)) {
-              this.peers.add(peer.ip, peer.ports.p2p)
+              this.peers.add(peer.ip, NETWORK_P2P_PORT)
             }
           })
 
@@ -116,7 +118,6 @@ class Crawler {
           this.request,
           (err, response) => {
             if (err) {
-              console.log(err)
               return reject(new Error(err))
             }
             this.heights.push({
