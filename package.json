@@ -1,6 +1,6 @@
 {
   "name": "Crawler",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Crawler scans the ARK network to get information about the peers in the network.",
   "main": "app.js",
   "scripts": {
