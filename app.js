@@ -35,7 +35,7 @@ const report = (crawler) => {
   }
 
   const allDelays = nodes.filter(item => item.latency).map(item => item.latency)
-  const averageDelay = allDelays.reduce((a, b) => a + b, 0) / allDelays.length
+  const averageDelay = (allDelays.reduce((a, b) => a + b, 0) / allDelays.length).toFixed(2)
   const maxDelay = Math.max(...allDelays)
   const minDelay = Math.min(...allDelays)
 
@@ -64,7 +64,7 @@ const report = (crawler) => {
   // delay stats
   console.log(``)
   console.log(`Delay`)
-  console.log(`  Average: ${averageDelay}ms`)
+  console.log(`  Avg: ${averageDelay}ms`)
   console.log(`  Min: ${minDelay}ms`)
   console.log(`  Max: ${maxDelay}ms`)
 
