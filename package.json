@@ -1,9 +1,8 @@
 {
   "name": "@deadlock-delegate/crawler",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Crawler scans the ARK network to get information about the peers in the network.",
-  "main": "app.js",
-  "entry": "src/crawler.js",
+  "main": "src/crawler.js",
   "scripts": {
     "start": "node app.js",
     "lint": "eslint ./ --fix"
