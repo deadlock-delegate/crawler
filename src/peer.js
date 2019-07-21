@@ -11,6 +11,7 @@ class Peers {
       return connection
     }
     connection = SocketClient.create({ hostname: ip, port })
+    connection.on('error', (err) => console.error(err))
     this.connections.set(ip, connection)
     return connection
   }
