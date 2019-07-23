@@ -11,7 +11,11 @@ class Peers {
       return connection
     }
     connection = SocketClient.create({ hostname: ip, port })
-    connection.on('error', (err) => console.error(err))
+    connection.on('error', (err) => {
+      console.error(err)
+      connection.destroy()
+      this.connections.delete(ip)
+    })
     this.connections.set(ip, connection)
     return connection
   }
@@ -24,7 +28,7 @@ class Peers {
     return this.connections
   }
 
-  disconnect () {
+  disconnectAll () {
     for (const [ip, connection] of this.connections.entries()) {
       connection.destroy()
       this.connections.delete(ip)

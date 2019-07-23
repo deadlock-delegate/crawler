@@ -10,16 +10,20 @@ class Crawler {
    * Initializes the internal request reactor.
    * @method constructor
    */
-  constructor (timeout = 3000) {
+  constructor (timeout = 3000, disconnect = true) {
     this.timeout = timeout
     this.headers = {}
     this.socket = undefined
+    this.disconnect = disconnect
     this.request = {
       headers: {
         nethash: 'no-nethash',
         version: 'no-version'
       }
     }
+
+    this.nodes = {}
+    this.peers = new Peers()
   }
 
   /**
@@ -30,22 +34,24 @@ class Crawler {
    */
   async run (peer) {
     this.heights = []
-    this.nodes = {}
     this.samplePeers = {}
     this.startTime = new Date()
-    this.peers = new Peers()
 
     NETWORK_P2P_PORT = peer.port
 
-    this.peers.add(peer.ip, NETWORK_P2P_PORT)
+    if (!this.peers.get(peer.ip)) {
+      this.peers.add(peer.ip, NETWORK_P2P_PORT)
+    }
 
     try {
       console.log(`... discovering network peers`)
       await this.discoverPeers(peer)
       console.log(`... scanning network`)
       await this.scanNetwork()
-      console.log(`... disconnecting from all peers`)
-      this.peers.disconnect()
+      if (this.disconnect) {
+        console.log(`... disconnecting from all peers`)
+        this.peers.disconnectAll()
+      }
     } catch (err) {
       console.error(err)
     }
@@ -64,8 +70,8 @@ class Crawler {
         this.request,
         (err, response) => {
           if (err) {
-            reject(new Error(err))
-            return
+            console.error(`Error when calling p2p.peer.getPeers on ${peer.ip}`)
+            return resolve()
           }
 
           if (peer.ip in this.samplePeers) {
@@ -83,8 +89,7 @@ class Crawler {
           })
 
           if (this.samplePeers[peer.ip] === VISITED) {
-            resolve()
-            return
+            return resolve()
           }
 
           // note: this is not very efficient on large arrays
@@ -118,7 +123,8 @@ class Crawler {
           this.request,
           (err, response) => {
             if (err) {
-              return reject(new Error(err))
+              console.error(`Error when calling p2p.peer.getStatus on ${peer.ip}`)
+              return resolve()
             }
             this.heights.push({
               height: response.data.state.header.height,
