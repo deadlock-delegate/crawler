@@ -22,7 +22,6 @@ class Crawler {
       }
     }
 
-    this.nodes = {}
     this.peers = new Peers()
   }
 
@@ -33,6 +32,7 @@ class Crawler {
    * @return {Promise}
    */
   async run (peer) {
+    this.nodes = {}
     this.heights = []
     this.samplePeers = {}
     this.startTime = new Date()
