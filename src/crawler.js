@@ -21,6 +21,7 @@ class Crawler {
         version: 'no-version'
       }
     }
+    this.sampleSize = sampleSize
 
     this.peers = new Peers()
   }
@@ -97,7 +98,7 @@ class Crawler {
             .map(x => ({ x, r: Math.random() }))
             .sort((a, b) => a.r - b.r)
             .map(a => a.x)
-            .slice(0, 10)
+            .slice(0, this.sampleSize)
             .filter(a => a.ip !== peer.ip)
             .map((peer) => {
               this.samplePeers[peer.ip] = NOT_VISITED
