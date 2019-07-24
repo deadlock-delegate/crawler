@@ -10,7 +10,7 @@ class Crawler {
    * Initializes the internal request reactor.
    * @method constructor
    */
-  constructor (timeout = 3000, disconnect = true) {
+  constructor (timeout = 3000, disconnect = true, sampleSize = 10) {
     this.timeout = timeout
     this.headers = {}
     this.socket = undefined
