@@ -12,6 +12,10 @@ const report = (crawler) => {
   const nodes = Object.values(crawler.nodes)
 
   for (const item of nodes) {
+    if (item.height === undefined || item.id === undefined) {
+      continue
+    }
+
     if (blockStats[item.height]) {
       blockStats[item.height].count += 1
       blockStats[item.height].ids[item.id] += 1
