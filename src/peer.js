@@ -10,7 +10,7 @@ class Peers {
     if (connection) {
       return connection
     }
-    connection = SocketClient.create({ hostname: ip, port })
+    connection = SocketClient.create({ hostname: ip, port, connectTimeout: 2000 })
     connection.on('error', (err) => {
       console.error(err)
       connection.destroy()
