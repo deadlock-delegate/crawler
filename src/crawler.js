@@ -10,20 +10,20 @@ class Crawler {
    * Initializes the internal request reactor.
    * @method constructor
    */
-  constructor (timeout = 3000, disconnect = true, sampleSize = 10) {
-    this.timeout = timeout
+  constructor (timeout = 2500, disconnect = true, sampleSize = 10) {
     this.headers = {}
+    this.timeout = timeout
     this.socket = undefined
     this.disconnect = disconnect
     this.request = {
+      data: {},
       headers: {
-        nethash: 'no-nethash',
-        version: 'no-version'
+        'Content-Type': 'application/json'
       }
     }
     this.sampleSize = sampleSize
 
-    this.peers = new Peers()
+    this.peers = new Peers(this.timeout)
   }
 
   /**
@@ -45,12 +45,12 @@ class Crawler {
     }
 
     try {
-      console.log(`... discovering network peers`)
+      console.log('... discovering network peers')
       await this.discoverPeers(peer)
-      console.log(`... scanning network`)
+      console.log('... scanning network')
       await this.scanNetwork()
       if (this.disconnect) {
-        console.log(`... disconnecting from all peers`)
+        console.log('... disconnecting from all peers')
         this.peers.disconnectAll()
       }
     } catch (err) {
@@ -61,7 +61,7 @@ class Crawler {
   }
 
   async discoverPeers (peer) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const connection = this.peers.get(peer.ip)
       if (!connection) {
         reject(new Error(`No connection exists for ${peer.ip}:${peer.port}`))
@@ -104,7 +104,6 @@ class Crawler {
               this.samplePeers[peer.ip] = NOT_VISITED
               return this.discoverPeers(peer)
             })
-
           Promise.all(samplePeers).then(resolve)
         }
       )
@@ -118,7 +117,6 @@ class Crawler {
         if (!connection) {
           return resolve()
         }
-
         connection.emit(
           'p2p.peer.getStatus',
           this.request,

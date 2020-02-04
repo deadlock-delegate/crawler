@@ -43,14 +43,14 @@ const report = (crawler) => {
   const maxDelay = Math.max(...allDelays)
   const minDelay = Math.min(...allDelays)
 
-  console.log(`===========================================`)
+  console.log('===========================================')
   console.log(`All nodes: ${Object.keys(crawler.nodes).length}`)
   console.log(`Nodes online: ${crawler.heights.length}`)
   console.log(`Nodes offline: ${Object.keys(crawler.nodes).length - crawler.heights.length}`)
 
   // height/block stats
-  console.log(``)
-  console.log(`Height and block stats:`)
+  console.log('')
+  console.log('Height and block stats:')
   for (const stat of orderBy(Object.values(blockStats), ['height'], ['desc'])) {
     console.log(`  ${stat.height} with ${stat.count} nodes. Block hashes:`)
     for (const hash in stat.ids) {
@@ -59,26 +59,26 @@ const report = (crawler) => {
   }
 
   // version stats
-  console.log(``)
-  console.log(`Version stats:`)
+  console.log('')
+  console.log('Version stats:')
   for (const stat of orderBy(Object.values(versionStats), ['version'], ['desc'])) {
     console.log(`  - ${stat.version} on ${stat.count} nodes`)
   }
 
   // delay stats
-  console.log(``)
-  console.log(`Delay`)
+  console.log('')
+  console.log('Delay')
   console.log(`  Avg: ${averageDelay}ms`)
   console.log(`  Min: ${minDelay}ms`)
   console.log(`  Max: ${maxDelay}ms`)
 
-  console.log(`------------------------------------------`)
+  console.log('------------------------------------------')
   console.log(`Finished scanning in ${new Date() - crawler.startTime}ms`)
 
   process.exit(0)
 }
 
-let node = { ip: undefined, port: undefined }
+const node = { ip: undefined, port: undefined }
 if (args.length === 1) {
   const url = new URL(args[0])
   node.ip = url.hostname

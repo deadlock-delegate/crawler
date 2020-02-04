@@ -10,10 +10,6 @@ If you find this or other plugins useful please consider
 
 to support development new plugins and tools for Ark's Ecosystem and maintenance of existing ones. Full list of contributions can be found on [https://arkdelegatesio/delegate/deadlock/](https://arkdelegates.io/delegate/deadlock/contributions/). 🖖
 
-**Branches**
-- master: is for Ark v2.4 node and higher which **uses websockets** for p2p instead of api
-- v2.3: is for any Ark node that's lower than v2.4 which **does not use websockets** yet
-
 ## Installation
 
 `npm install`
