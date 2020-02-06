@@ -71,7 +71,7 @@ class Crawler {
         this.request,
         (err, response) => {
           if (err) {
-            console.error(`Error when calling p2p.peer.getPeers on ${peer.ip}`)
+            console.error(`Error when calling p2p.peer.getPeers on ${peer.ip}: ${err}`)
             return resolve()
           }
 
@@ -122,7 +122,7 @@ class Crawler {
           this.request,
           (err, response) => {
             if (err) {
-              console.error(`Error when calling p2p.peer.getStatus on ${peer.ip}`)
+              console.error(`Error when calling p2p.peer.getStatus on ${peer.ip}: ${err}`)
               return resolve()
             }
             this.heights.push({
