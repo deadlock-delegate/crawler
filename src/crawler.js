@@ -41,7 +41,7 @@ class Crawler {
     NETWORK_P2P_PORT = peer.port
 
     if (!this.peers.get(peer.ip)) {
-      this.peers.add(peer.ip, NETWORK_P2P_PORT)
+      await this.peers.add(peer.ip, NETWORK_P2P_PORT)
     }
 
     try {
@@ -66,36 +66,39 @@ class Crawler {
       if (!connection) {
         reject(new Error(`No connection exists for ${peer.ip}:${peer.port}`))
       }
-      connection.emit(
-        'p2p.peer.getPeers',
-        this.request,
-        (err, response) => {
-          if (err) {
-            console.error(`Error when calling p2p.peer.getPeers on ${peer.ip}: ${err}`)
-            return resolve()
-          }
 
+      const options = {
+          path: 'p2p.peer.getPeers',
+          headers: {},
+          method: "POST",
+          payload: {},
+      };
+
+      connection.request(options)
+        .then(async (response) => {
 
           if (peer.ip in this.samplePeers) {
             this.samplePeers[peer.ip] = VISITED
           }
 
-          response.data.map((peer) => {
+          const test = await response.payload.map(async (peer) => {
             if (!(peer.ip in this.nodes)) {
               this.nodes[peer.ip] = peer
             }
 
             if (!this.peers.get(peer.ip)) {
-              this.peers.add(peer.ip, NETWORK_P2P_PORT)
+              await this.peers.add(peer.ip, NETWORK_P2P_PORT)
             }
           })
 
+          await Promise.all(test)
+          
           if (this.samplePeers[peer.ip] === VISITED) {
             return resolve()
           }
 
           // note: this is not very efficient on large arrays
-          const samplePeers = response.data
+          const samplePeers = response.payload
             .map(x => ({ x, r: Math.random() }))
             .sort((a, b) => a.r - b.r)
             .map(a => a.x)
@@ -105,37 +108,43 @@ class Crawler {
               this.samplePeers[peer.ip] = NOT_VISITED
               return this.discoverPeers(peer)
             })
-          Promise.all(samplePeers).then(resolve)
+          await Promise.all(samplePeers).then(resolve)
         }
-      )
+      ).catch(err => {
+          console.error(`Error when calling p2p.peer.getPeers on ${peer.ip}: ${err}`)
+          return resolve()
+      })
     })
   }
 
   scanNetwork () {
     const promises = map(this.nodes, (peer) => {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const connection = this.peers.get(peer.ip)
         if (!connection) {
           return resolve()
         }
-        connection.emit(
-          'p2p.peer.getStatus',
-          this.request,
-          (err, response) => {
-            if (err) {
-              console.error(`Error when calling p2p.peer.getStatus on ${peer.ip}: ${err}`)
-              return resolve()
-            }
+        const options = {
+            path: 'p2p.peer.getStatus',
+            headers: {},
+            method: "POST",
+            payload: {},
+        };
+        connection.request(options)
+          .then((response) => {
             this.heights.push({
-              height: response.data.state.header.height,
-              id: response.data.state.header.id
+              height: response.payload.state.header.height,
+              id: response.payload.state.header.id
             })
-            this.nodes[peer.ip].height = response.data.state.header.height
-            this.nodes[peer.ip].id = response.data.state.header.id
-            this.nodes[peer.ip].version = response.headers.version
+            this.nodes[peer.ip].height = response.payload.state.header.height
+            this.nodes[peer.ip].id = response.payload.state.header.id
+            this.nodes[peer.ip].version = response.payload.config.version
             return resolve()
           }
-        )
+        ).catch(err => {
+          console.error(`Error when calling p2p.peer.getStatus on ${peer.ip}: ${err}`)
+          return resolve()
+        })
       })
     })
 

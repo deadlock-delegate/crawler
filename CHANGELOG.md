@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.0] - 2020-10-15
+
+- Add support for core v3
+- Removes delay stats (this data isn't provided from core anymore)
+
 ## [1.3.1] - 2020-09-23
 
 - Fetch node version from headers

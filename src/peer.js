@@ -1,4 +1,4 @@
-const SocketClient = require('socketcluster-client')
+const Client = require('./client')
 
 class Peers {
   constructor (timeout = 2500) {
@@ -6,29 +6,19 @@ class Peers {
     this.connections = new Map()
   }
 
-  add (ip, port) {
+  async add (ip, port) {
     let connection = this.connections.get(ip)
     if (connection) {
       return connection
     }
 
-    connection = SocketClient.create({
-      hostname: ip,
-      port,
-      connectTimeout: this.timeout,
-      ackTimeout: this.timeout,
-      perMessageDeflate: true
-    })
+    connection = new Client(`ws://${ip}:${port}`)
 
-    const socket = connection.transport.socket
-    if (socket._receiver) {
-      socket._receiver._maxPayload = 100 * 1024
-    }
+    connection.onError = (error) => {
+      this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+    };
 
-    connection.on('error', () => {
-      connection.destroy()
-      this.connections.delete(ip)
-    })
+    await connection.connect({ retries: 1 });
 
     this.connections.set(ip, connection)
     return connection
@@ -44,7 +34,7 @@ class Peers {
 
   disconnectAll () {
     for (const [ip, connection] of this.connections.entries()) {
-      connection.destroy()
+      connection.disconnect()
       this.connections.delete(ip)
     }
   }
