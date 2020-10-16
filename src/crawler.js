@@ -11,16 +11,8 @@ class Crawler {
    * @method constructor
    */
   constructor (timeout = 2500, disconnect = true, sampleSize = 10) {
-    this.headers = {}
     this.timeout = timeout
-    this.socket = undefined
     this.disconnect = disconnect
-    this.request = {
-      data: {},
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
     this.sampleSize = sampleSize
 
     this.peers = new Peers(this.timeout)
@@ -51,7 +43,7 @@ class Crawler {
       await this.scanNetwork()
       if (this.disconnect) {
         console.log('... disconnecting from all peers')
-        this.peers.disconnectAll()
+        await this.peers.disconnectAll()
       }
     } catch (err) {
       console.error(err)

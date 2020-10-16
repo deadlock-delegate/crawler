@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.1] - 2020-10-16
+
+- bug fixes
+
 ## [1.4.0] - 2020-10-15
 
 - Add support for core v3

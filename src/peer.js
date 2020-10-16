@@ -15,7 +15,7 @@ class Peers {
     connection = new Client(`ws://${ip}:${port}`)
 
     connection.onError = (error) => {
-      this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+      console.log(`Socket error (peer ${ip}) : ${error.message}`);
     };
 
     await connection.connect({ retries: 1 });
@@ -32,9 +32,9 @@ class Peers {
     return this.connections
   }
 
-  disconnectAll () {
+  async disconnectAll () {
     for (const [ip, connection] of this.connections.entries()) {
-      connection.disconnect()
+      await connection.disconnect()
       this.connections.delete(ip)
     }
   }
