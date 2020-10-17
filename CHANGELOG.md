@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.3] - 2020-10-17
+
+- disconnect from peer on error
+
 ## [1.4.2] - 2020-10-17
 
 - bug fixes and performance improvements

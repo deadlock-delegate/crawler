@@ -16,6 +16,7 @@ class Peers {
 
     connection.onError = (error) => {
       console.log(`    Socket error (peer ${ip}) : ${error.message}`)
+      this.disconnect(ip)
     }
 
     try {
@@ -34,6 +35,15 @@ class Peers {
 
   map () {
     return this.connections
+  }
+
+  async disconnect(ip) {
+    try {
+      await this.connections.get(ip).disconnect()
+    } catch(err) {
+      console.log(`    Error disconnecting from ${ip}: ${err}`)
+    }
+    this.connections.delete(ip)
   }
 
   async disconnectAll () {
