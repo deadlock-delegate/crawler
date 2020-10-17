@@ -1,7 +1,7 @@
 const Client = require('./client')
 
 class Peers {
-  constructor (timeout = 2500) {
+  constructor (timeout = 10) {
     this.timeout = timeout
     this.connections = new Map()
   }
@@ -15,10 +15,14 @@ class Peers {
     connection = new Client(`ws://${ip}:${port}`)
 
     connection.onError = (error) => {
-      console.log(`Socket error (peer ${ip}) : ${error.message}`);
-    };
+      console.log(`    Socket error (peer ${ip}) : ${error.message}`)
+    }
 
-    await connection.connect({ retries: 1 });
+    try {
+      await connection.connect({ retries: 1, timeout: this.timeout })
+    } catch (err) {
+      console.log(`    There was a problem connecting to`, ip)
+    }
 
     this.connections.set(ip, connection)
     return connection
@@ -33,10 +37,16 @@ class Peers {
   }
 
   async disconnectAll () {
+    const connections = []
     for (const [ip, connection] of this.connections.entries()) {
-      await connection.disconnect()
-      this.connections.delete(ip)
+      connections.push(new Promise((resolve, reject) => {
+        connection.disconnect().then(() => {
+          this.connections.delete(ip)
+          resolve()
+        }).catch(reject)
+      }))
     }
+    await Promise.all(connections)
   }
 }
 

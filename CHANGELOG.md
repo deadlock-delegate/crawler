@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.2] - 2020-10-17
+
+- bug fixes and performance improvements
+
 ## [1.4.1] - 2020-10-16
 
 - bug fixes

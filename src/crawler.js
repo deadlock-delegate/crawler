@@ -10,7 +10,7 @@ class Crawler {
    * Initializes the internal request reactor.
    * @method constructor
    */
-  constructor (timeout = 2500, disconnect = true, sampleSize = 10) {
+  constructor (timeout = 2500, disconnect = true, sampleSize = 5) {
     this.timeout = timeout
     this.disconnect = disconnect
     this.sampleSize = sampleSize
@@ -53,60 +53,64 @@ class Crawler {
   }
 
   async discoverPeers (peer) {
-    return new Promise((resolve, reject) => {
-      const connection = this.peers.get(peer.ip)
-      if (!connection) {
-        reject(new Error(`No connection exists for ${peer.ip}:${peer.port}`))
-      }
+    const connection = this.peers.get(peer.ip)
+    if (!connection) {
+      return new Error(`No connection exists for ${peer.ip}:${peer.port}`)
+    }
 
-      const options = {
-          path: 'p2p.peer.getPeers',
-          headers: {},
-          method: "POST",
-          payload: {},
-      };
+    // if peer is a part of samplePeers and has already been visited, resolve it
+    if (this.samplePeers[peer.ip] === VISITED) {
+      return
+    }
 
-      connection.request(options)
-        .then(async (response) => {
+    const options = {
+      path: 'p2p.peer.getPeers',
+      headers: {},
+      method: 'POST',
+      payload: {}
+    }
 
-          if (peer.ip in this.samplePeers) {
-            this.samplePeers[peer.ip] = VISITED
-          }
+    const resp = await connection.request(options)
 
-          const test = await response.payload.map(async (peer) => {
-            if (!(peer.ip in this.nodes)) {
-              this.nodes[peer.ip] = peer
-            }
+    // mark this peer as visited
+    if (peer.ip in this.samplePeers) {
+      this.samplePeers[peer.ip] = VISITED
+    }
 
-            if (!this.peers.get(peer.ip)) {
-              await this.peers.add(peer.ip, NETWORK_P2P_PORT)
-            }
-          })
-
-          await Promise.all(test)
-          
-          if (this.samplePeers[peer.ip] === VISITED) {
-            return resolve()
-          }
-
-          // note: this is not very efficient on large arrays
-          const samplePeers = response.payload
-            .map(x => ({ x, r: Math.random() }))
-            .sort((a, b) => a.r - b.r)
-            .map(a => a.x)
-            .slice(0, this.sampleSize)
-            .filter(a => a.ip !== peer.ip)
-            .map((peer) => {
-              this.samplePeers[peer.ip] = NOT_VISITED
-              return this.discoverPeers(peer)
-            })
-          await Promise.all(samplePeers).then(resolve)
+    const peerConnections = resp.payload.map((peer) => {
+      return new Promise((resolve) => {
+        if (!(peer.ip in this.nodes)) {
+          this.nodes[peer.ip] = peer
         }
-      ).catch(err => {
-          console.error(`Error when calling p2p.peer.getPeers on ${peer.ip}: ${err}`)
-          return resolve()
+
+        if (!this.peers.get(peer.ip)) {
+          this.peers.add(peer.ip, NETWORK_P2P_PORT).then(() => resolve())
+        } else {
+          resolve()
+        }
       })
     })
+
+    // connect to the nodes this peer is connected to
+    await Promise.all(peerConnections)
+
+    if (this.samplePeers[peer.ip] === VISITED) {
+      return
+    }
+
+    // visits few more peers and and fetch a list of peers they are connected to
+    const samplePeers = resp.payload
+      .filter(a => a.ip !== peer.ip)
+      .map(x => ({ x, r: Math.random() }))
+      .sort((a, b) => a.r - b.r)
+      .map(a => a.x)
+      .slice(0, this.sampleSize)
+      .map((peer) => {
+        this.samplePeers[peer.ip] = NOT_VISITED
+        return this.discoverPeers(peer)
+      })
+
+    await Promise.all(samplePeers)
   }
 
   scanNetwork () {
@@ -117,11 +121,11 @@ class Crawler {
           return resolve()
         }
         const options = {
-            path: 'p2p.peer.getStatus',
-            headers: {},
-            method: "POST",
-            payload: {},
-        };
+          path: 'p2p.peer.getStatus',
+          headers: {},
+          method: 'POST',
+          payload: {}
+        }
         connection.request(options)
           .then((response) => {
             this.heights.push({
@@ -133,10 +137,10 @@ class Crawler {
             this.nodes[peer.ip].version = response.payload.config.version
             return resolve()
           }
-        ).catch(err => {
-          console.error(`Error when calling p2p.peer.getStatus on ${peer.ip}: ${err}`)
-          return resolve()
-        })
+          ).catch(err => {
+            console.error(`    Error when calling p2p.peer.getStatus on ${peer.ip}: ${err}`)
+            return resolve()
+          })
       })
     })
 
