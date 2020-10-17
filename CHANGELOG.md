@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.4] - 2020-10-17
+
+- check if connection exists before disconnecting
+
 ## [1.4.3] - 2020-10-17
 
 - disconnect from peer on error

@@ -38,8 +38,13 @@ class Peers {
   }
 
   async disconnect(ip) {
+    const connection = this.connections.get(ip)
+    if (!connection) {
+      return
+    }
+
     try {
-      await this.connections.get(ip).disconnect()
+      await connection.disconnect()
     } catch(err) {
       console.log(`    Error disconnecting from ${ip}: ${err}`)
     }
