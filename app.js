@@ -67,7 +67,7 @@ const report = (crawler) => {
 }
 
 const node = { ip: undefined, port: undefined }
-if (args.length === 1) {
+if (args.length >= 1) {
   const url = new URL(args[0])
   node.ip = url.hostname
   node.port = url.port

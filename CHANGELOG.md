@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.5] - 2020-10-24
+
+- handle socket onDisconnect
+
 ## [1.4.4] - 2020-10-17
 
 - check if connection exists before disconnecting
